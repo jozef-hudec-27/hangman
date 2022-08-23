@@ -1,10 +1,12 @@
 require_relative 'game'
 
-available_words = File.readlines('words.txt').filter_map { |word|
+available_words = File.readlines('words.txt').filter_map do |word|
   word.chomp if word.chomp.length >= 5 && word.chomp.length <= 12
-}
+end
 
 current_save_filename = ''
+
+save_files_directory = Dir.new('savefiles')
 
 catch :main_loop do
   # MAIN LOOP
@@ -15,7 +17,7 @@ catch :main_loop do
     input = gets.chomp
 
     if input == 'load'
-      available_save_files = Dir.new('savefiles').children
+      available_save_files = save_files_directory.children
 
       if available_save_files == []
         puts '> There are no saves available.'
@@ -57,11 +59,13 @@ catch :main_loop do
         guess = gets.chomp.downcase
 
         if guess == 'save'
-          puts '> What should your save be called?'
-          save_name = gets.chomp.strip
-          save_name = "save#{Dir.new('savefiles').children.length}" if save_name == ''
+          puts "> What should your save be called? #{"Enter the name of your current save ('#{current_save_filename}') if you want to overwrite it." if current_save_filename != ''}"
+          puts "> Be careful not to overwrite any existing saves if you don't wish to. They are: #{save_files_directory.children.join(', ')}." unless save_files_directory.children.empty?
 
-          puts "> Saving your game as '#{save_name}'"
+          save_name = gets.chomp.strip
+          save_name = "save#{save_files_directory.children.length}" if save_name == ''
+
+          puts "> Saving your game as '#{save_name}'..."
           sleep(1)
 
           serialized_game = Marshal.dump(game)
