@@ -35,11 +35,15 @@ catch :main_loop do
           puts '> Save not found. Try again.'
           retry
         else
-          puts "> Loading '#{file_name}'..."
-          current_save_filename = file_name
-          sleep(1)
-          serialized_game = File.read("savefiles/#{file_name}")
-          game = Marshal.load(serialized_game)
+          if file_name != 'q'
+            puts "> Loading '#{file_name}'..."
+            current_save_filename = file_name
+            sleep(1)
+            serialized_game = File.read("savefiles/#{file_name}")
+            game = Marshal.load(serialized_game)
+          else
+            game = Game.new(available_words.sample) 
+          end
         end
       end
     else
@@ -114,4 +118,4 @@ catch :main_loop do
   end
 end
 
-puts '> See you later!'
+puts '👋 See you later!'
