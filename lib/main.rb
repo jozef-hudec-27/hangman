@@ -8,10 +8,33 @@ current_save_filename = ''
 
 save_files_directory = Dir.new('savefiles')
 
+def output_new_round_info(game)
+  puts "\n> ROUND #{game.round}"
+  puts HANGMAN_STAGES[game.wrong_guesses]
+  puts "> Letters already used: #{game.used_letters.join(', ')}"
+  puts "> Hint: #{game.hint}"
+
+  puts 'Please enter a single letter.'
+end
+
+def delete_current_save(filename)
+  return unless filename != ''
+
+  puts "> Do you want to delete the save '#{filename}', since you've finished the game? Enter 'y' if yes."
+  delete_current_save = gets.chomp.downcase
+
+  if delete_current_save == 'y'
+    puts "> Deleting #{filename}..."
+    sleep(1)
+    File.delete("savefiles/#{filename}")
+  end
+end
+
 catch :main_loop do
   # MAIN LOOP
   loop do
     current_save_filename = ''
+    game = nil
 
     puts "\n> If you want to load an existing game, enter 'load'."
     input = gets.chomp
@@ -19,8 +42,8 @@ catch :main_loop do
     if input == 'load'
       available_save_files = save_files_directory.children
 
-      if available_save_files == []
-        puts '> There are no saves available.'
+      if available_save_files.empty?
+        puts '> There are no saves available. Starting a new game...'
         game = Game.new(available_words.sample)
         sleep(1)
       else
@@ -52,12 +75,7 @@ catch :main_loop do
 
     # GAME LOOP
     loop do
-      puts "\n> ROUND #{game.round}"
-      puts HANGMAN_STAGES[game.wrong_guesses]
-      puts "> Letters already used: #{game.used_letters.join(', ')}"
-      puts "> Hint: #{game.hint}"
-
-      puts 'Please enter a single letter.'
+      output_new_round_info(game)
 
       begin
         guess = gets.chomp.downcase
@@ -100,16 +118,7 @@ catch :main_loop do
       end
     end
 
-    if current_save_filename != ''
-      puts "> Do you want to delete the save '#{current_save_filename}', since you've finished the game? Enter 'y' if yes."
-      delete_current_save = gets.chomp.downcase
-
-      if delete_current_save == 'y'
-        puts "> Deleting #{current_save_filename}..."
-        sleep(1)
-        File.delete("savefiles/#{current_save_filename}")
-      end
-    end
+    delete_current_save(current_save_filename)
 
     puts "> Do you want to play again? ('y')"
     play_again = gets.chomp.downcase
