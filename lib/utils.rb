@@ -1,5 +1,7 @@
 require_relative 'game'
 
+DIGITS = '0123456789'
+
 def output_new_round_info(game)
   puts "\n> ROUND #{game.round}"
   puts HANGMAN_STAGES[game.wrong_guesses]
@@ -42,7 +44,6 @@ def new_game(input, save_files_dir, words)
     Game.new(words.sample)
   else
     puts "> Which save do you want to load? Available: #{available_save_files.join(', ')}."
-    sleep(1)
     puts "> Changed your mind? Enter 'q' to start a new game."
 
     begin
@@ -64,12 +65,22 @@ def new_game(input, save_files_dir, words)
   end
 end
 
+def save_name_valid?(savename)
+  return false if savename == ''
+
+  savename.chars.each do |char|
+    return false unless ALPHABET.include?(char) || DIGITS.include?(char) || '-_'.include?(char)
+  end
+
+  true
+end
+
 def save_game(cur_save_filename, save_files_dir, game)
-  puts "> What should your save be called? #{"Enter the name of your current save ('#{cur_save_filename}') if you want to overwrite it." if cur_save_filename != ''}"
+  puts "> What should your save be called? (use only letters, numbers, hyphens and underscores) #{"Enter the name of your current save ('#{cur_save_filename}') if you want to overwrite it." if cur_save_filename != ''}"
   puts "> Be careful not to overwrite any existing saves if you don't wish to. They are: #{save_files_dir.children.join(', ')}." unless save_files_dir.children.empty?
 
   save_name = gets.chomp.strip
-  save_name = "save#{save_files_dir.children.length}" if save_name == ''
+  save_name = "save#{save_files_dir.children.length}" unless save_name_valid?(save_name)
 
   puts "> Saving your game as '#{save_name}'..."
   sleep(1)
