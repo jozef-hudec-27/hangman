@@ -4,9 +4,13 @@ available_words = File.readlines('words.txt').filter_map { |word|
   word.chomp if word.chomp.length >= 5 && word.chomp.length <= 12
 }
 
+current_save_filename = ''
+
 catch :main_loop do
   # MAIN LOOP
   loop do
+    current_save_filename = ''
+
     puts "\n> If you want to load an existing game, enter 'load'."
     input = gets.chomp
 
@@ -15,6 +19,7 @@ catch :main_loop do
 
       if available_save_files == []
         puts '> There are no saves available.'
+        game = Game.new(available_words.sample)
         sleep(1)
       else
         puts "> Which save do you want to load? Available: #{available_save_files.join(', ')}."
@@ -29,6 +34,7 @@ catch :main_loop do
           retry
         else
           puts "> Loading '#{file_name}'..."
+          current_save_filename = file_name
           sleep(1)
           serialized_game = File.read("savefiles/#{file_name}")
           game = Marshal.load(serialized_game)
@@ -77,12 +83,23 @@ catch :main_loop do
 
         if game.wrong_guesses == 7
           puts HANGMAN_STAGES[-1]
-          puts "> You lost! The secret word was #{game.secret_word.join('')}."
+          puts "😿 You lost! The secret word was #{game.secret_word.join('')}."
           break
         elsif game.hint.count('_').zero?
-          puts "You guessed all the letters! The secret word was #{game.hint.split(' ').join('')}."
+          puts "🥳 You guessed all the letters! The secret word was #{game.hint.split(' ').join('')}."
           break
         end
+      end
+    end
+
+    if current_save_filename != ''
+      puts "> Do you want to delete the save '#{current_save_filename}', since you've finished the game? Enter 'y' if yes."
+      delete_current_save = gets.chomp.downcase
+
+      if delete_current_save == 'y'
+        puts "> Deleting #{current_save_filename}..."
+        sleep(1)
+        File.delete("savefiles/#{current_save_filename}")
       end
     end
 
