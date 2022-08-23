@@ -7,11 +7,40 @@ available_words = File.readlines('words.txt').filter_map { |word|
 catch :main_loop do
   # MAIN LOOP
   loop do
-    game = Game.new(available_words.sample)
+    puts "\n> If you want to load an existing game, enter 'load'."
+    input = gets.chomp
+
+    if input == 'load'
+      available_save_files = Dir.new('savefiles').children
+
+      if available_save_files == []
+        puts '> There are no saves available.'
+        sleep(1)
+      else
+        puts "> Which save do you want to load? Available: #{available_save_files.join(', ')}."
+        sleep(1)
+        puts "> Changed your mind? Enter 'q' to start a new game."
+
+        begin
+          file_name = gets.chomp
+          raise 'Save not found' unless available_save_files.include?(file_name) || file_name == 'q'
+        rescue
+          puts '> Save not found. Try again.'
+          retry
+        else
+          puts "> Loading '#{file_name}'..."
+          sleep(1)
+          serialized_game = File.read("savefiles/#{file_name}")
+          game = Marshal.load(serialized_game)
+        end
+      end
+    else
+      game = Game.new(available_words.sample)
+    end
 
     # GAME LOOP
     loop do
-      puts "> ROUND #{game.round}"
+      puts "\n> ROUND #{game.round}"
       puts HANGMAN_STAGES[game.wrong_guesses]
       puts "> Letters already used: #{game.used_letters.join(', ')}"
       puts "> Hint: #{game.hint}"
@@ -20,6 +49,20 @@ catch :main_loop do
 
       begin
         guess = gets.chomp.downcase
+
+        if guess == 'save'
+          puts '> What should your save be called?'
+          save_name = gets.chomp.strip
+          save_name = "save#{Dir.new('savefiles').children.length}" if save_name == ''
+
+          puts "> Saving your game as '#{save_name}'"
+          sleep(1)
+
+          serialized_game = Marshal.dump(game)
+          File.open("savefiles/#{save_name}", 'w') { |file| file.puts serialized_game }
+          throw :main_loop
+        end
+
         throw :main_loop if guess == 'quit'
         raise 'Invalid guess' unless game.guess_valid?(guess)
       rescue
