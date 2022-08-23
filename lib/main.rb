@@ -6,6 +6,7 @@ end
 
 current_save_filename = ''
 
+Dir.mkdir('savefiles') unless Dir.exist?('savefiles')
 save_files_directory = Dir.new('savefiles')
 
 def output_new_round_info(game)
@@ -23,11 +24,11 @@ def delete_current_save(filename)
   puts "> Do you want to delete the save '#{filename}', since you've finished the game? Enter 'y' if yes."
   delete_current_save = gets.chomp.downcase
 
-  if delete_current_save == 'y'
-    puts "> Deleting #{filename}..."
-    sleep(1)
-    File.delete("savefiles/#{filename}")
-  end
+  return unless delete_current_save == 'y'
+
+  puts "> Deleting #{filename}..."
+  sleep(1)
+  File.delete("savefiles/#{filename}")
 end
 
 catch :main_loop do
@@ -107,7 +108,7 @@ catch :main_loop do
       else
         game.guess_letter(guess)
 
-        if game.wrong_guesses == 7
+        if game.wrong_guesses == HANGMAN_STAGES.length - 1
           puts HANGMAN_STAGES[-1]
           puts "😿 You lost! The secret word was #{game.secret_word.join('')}."
           break
