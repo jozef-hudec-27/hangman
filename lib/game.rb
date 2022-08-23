@@ -59,44 +59,44 @@ HANGMAN_STAGES = ['''
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
 class Game
-    attr_reader :round, :wrong_guesses, :used_letters, :secret_word
-    
-    def initialize(secret_word)
-        @round = 1
-        @wrong_guesses = 0
-        @secret_word = secret_word.split('')
-        @used_letters = []
-        @hint = Array.new(secret_word.length, '_')
-    end
+  attr_reader :round, :wrong_guesses, :used_letters, :secret_word
 
-    def guess_letter(letter)
-        self.round = round + 1
-        used_letters.push(letter)
+  def initialize(secret_word)
+    @round = 1
+    @wrong_guesses = 0
+    @secret_word = secret_word.split('')
+    @used_letters = []
+    @hint = Array.new(secret_word.length, '_')
+  end
 
-        prev_unknown_letter_count = hint.count('_')
+  def guess_letter(letter)
+    self.round = round + 1
+    used_letters.push(letter)
 
-        secret_word.length.times { |i| @hint[i] = letter if secret_word[i] == letter } 
+    prev_unknown_letter_count = hint.count('_')
 
-        new_unknown_letter_count = hint.count('_')
+    secret_word.length.times { |i| @hint[i] = letter if secret_word[i] == letter }
 
-        self.wrong_guesses = wrong_guesses + 1 if prev_unknown_letter_count == new_unknown_letter_count
-    end
+    new_unknown_letter_count = hint.count('_')
 
-    def used_letter?(letter)
-        used_letters.include?(letter)
-    end
+    self.wrong_guesses = wrong_guesses + 1 if prev_unknown_letter_count == new_unknown_letter_count
+  end
 
-    def guess_valid?(guess)
-        return false if guess.length != 1 || used_letter?(guess)
+  def used_letter?(letter)
+    used_letters.include?(letter)
+  end
 
-        ALPHABET.include?(guess)
-    end
+  def guess_valid?(guess)
+    return false if guess.length != 1 || used_letter?(guess)
 
-    def hint
-        @hint.join(' ')
-    end
+    ALPHABET.include?(guess)
+  end
 
-    private
+  def hint
+    @hint.join(' ')
+  end
 
-    attr_writer :round, :wrong_guesses
-end 
+  private
+
+  attr_writer :round, :wrong_guesses
+end
