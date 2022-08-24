@@ -41,7 +41,7 @@ def new_game(input, save_files_dir, words)
   if available_save_files.empty?
     puts '> There are no saves available. Starting a new game...'
     sleep(1)
-    Game.new(words.sample)
+    [Game.new(words.sample), '']
   else
     puts "> Which save do you want to load? Available: #{available_save_files.join(', ')}."
     puts "> Changed your mind? Enter 'q' to start a new game."
