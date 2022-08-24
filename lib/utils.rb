@@ -75,12 +75,24 @@ def save_name_valid?(savename)
   true
 end
 
+def save_name(name, number)
+  return name if save_name_valid?(name)
+
+  new_name = "save#{number}"
+
+  if File.exist?("savefiles/#{new_name}")
+    save_name('', number+1)
+  else
+    new_name
+  end
+end
+
 def save_game(cur_save_filename, save_files_dir, game)
   puts "> What should your save be called? (use only letters, numbers, hyphens and underscores) #{"Enter the name of your current save ('#{cur_save_filename}') if you want to overwrite it." if cur_save_filename != ''}"
   puts "> Be careful not to overwrite any existing saves if you don't wish to. They are: #{save_files_dir.children.join(', ')}." unless save_files_dir.children.empty?
 
   save_name = gets.chomp.strip
-  save_name = "save#{save_files_dir.children.length}" unless save_name_valid?(save_name)
+  save_name = save_name(save_name, save_files_dir.children.length) 
 
   puts "> Saving your game as '#{save_name}'..."
   sleep(1)
